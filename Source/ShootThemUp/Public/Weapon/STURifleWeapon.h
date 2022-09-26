@@ -24,10 +24,16 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Weapon", meta=(ClampMin="0.0", ClampMax="20.0"))
 	float BulletSpread = 1.5f;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Weapon")
+    float DamageAmount = 10.0f;
 	
 	virtual void MakeShot() override;
 
 	virtual bool GetTraceData(FVector& TraceStart, FVector& TraceEnd) const override;
+
+    void MakeDamage(const FHitResult& HitResult) ;
+
 	
 private:
 

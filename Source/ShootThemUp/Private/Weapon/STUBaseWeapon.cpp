@@ -22,6 +22,8 @@ void ASTUBaseWeapon::BeginPlay()
 	Super::BeginPlay();
 
 	check(WeaponMesh);
+
+    CurrentAmo = DefaultAmo;
 }
 
 
@@ -78,11 +80,9 @@ void ASTUBaseWeapon::MakeHit(FHitResult& HitResult, const FVector& TraceStart, c
 bool ASTUBaseWeapon::IsHitBehind(const FHitResult& HitResult) const
 {
 	if (!HitResult.bBlockingHit) return false;
-	
-	const FTransform SocketTransform = WeaponMesh->GetSocketTransform(MuzzleSocketName);
-	
-	FVector GunDirection = SocketTransform.GetRotation().GetForwardVector();
-	FVector HitVector = ( HitResult.ImpactPoint - SocketTransform.GetLocation()).GetSafeNormal();
+    
+	FVector GunDirection = GetMuzzleRotation().GetForwardVector();
+	FVector HitVector = ( HitResult.ImpactPoint - GetMuzzleLocation()).GetSafeNormal();
 
 	float AngleBetweenTraceAndHit = FVector::DotProduct(GunDirection, HitVector);
 	AngleBetweenTraceAndHit = FMath::RadiansToDegrees(FMath::Acos(AngleBetweenTraceAndHit));
@@ -90,12 +90,48 @@ bool ASTUBaseWeapon::IsHitBehind(const FHitResult& HitResult) const
 	return AngleBetweenTraceAndHit >= MaxValidAngleBetweenTraceAndHit;
 }
 
-void ASTUBaseWeapon::MakeDamage(const FHitResult& HitResult)
-{
-	const auto DamageActor = HitResult.GetActor();
-	if (!DamageActor) return;
 
-	DamageActor->TakeDamage(DamageAmount, FDamageEvent{}, GetPlayerController(), this);
+FVector  ASTUBaseWeapon::GetMuzzleLocation() const {
+    return WeaponMesh->GetSocketTransform(MuzzleSocketName).GetLocation();
+}
+FQuat ASTUBaseWeapon::GetMuzzleRotation() const {
+    return WeaponMesh->GetSocketTransform(MuzzleSocketName).GetRotation();
+}
+
+void ASTUBaseWeapon::DecreaseAmo() {
+    CurrentAmo.Bullets--;
+    LogAmmo();
+
+    if (IsClipEmpty() && !IsAmoEmpty()) {
+        OnClipEmpty.Broadcast();
+    }
+}
+
+bool ASTUBaseWeapon::IsAmoEmpty() const {
+    return !CurrentAmo.Infinite && CurrentAmo.Clips == 0 and IsClipEmpty();
+}
+
+bool ASTUBaseWeapon::IsClipEmpty() const {
+    return CurrentAmo.Bullets == 0;
+}
+
+void ASTUBaseWeapon::ChangeClip() {;
+    if (!CurrentAmo.Infinite) {
+        if (CurrentAmo.Clips == 0) return;
+        CurrentAmo.Clips--;
+    }
+    CurrentAmo.Bullets = DefaultAmo.Bullets;
+    
+}
+
+bool ASTUBaseWeapon::CanReload() const {
+    return CurrentAmo.Bullets < DefaultAmo.Bullets && CurrentAmo.Clips > 0;
+}
+
+void ASTUBaseWeapon::LogAmmo() {
+    FString AmmoInfo = "Ammo: " + FString::FromInt(CurrentAmo.Bullets) + " / ";
+    AmmoInfo += CurrentAmo.Infinite? "Infinite" : FString::FromInt(CurrentAmo.Clips);
+    UE_LOG(LogTemp, Warning, TEXT("%s"), *AmmoInfo);
 }
 
 

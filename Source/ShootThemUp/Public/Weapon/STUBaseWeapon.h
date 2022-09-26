@@ -3,10 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "STUCoreTypes.h"
 #include "GameFramework/Actor.h"
 #include "STUBaseWeapon.generated.h"
 
 class USkeletalMeshComponent;
+
 
 UCLASS()
 class SHOOTTHEMUP_API ASTUBaseWeapon : public AActor
@@ -16,8 +18,15 @@ class SHOOTTHEMUP_API ASTUBaseWeapon : public AActor
 public:	
 	ASTUBaseWeapon();
 
+    FOnClipEmpty OnClipEmpty;
+
 	virtual void StartFire();
 	virtual void StopFire();
+
+    void SetBlockShot(bool flag) { BlockShot = flag;};
+
+    void ChangeClip();
+    bool CanReload() const;
 
 protected:
 	virtual void BeginPlay() override;
@@ -34,8 +43,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Weapon", meta=(ClampMin="0.0", ClampMax="180.0"))
 	float MaxValidAngleBetweenTraceAndHit = 45.0f;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Weapon")
-	float DamageAmount = 10.0f;
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Weapon")
+    FAmoData DefaultAmo{15, 10, false};
 
 	virtual void MakeShot();
 
@@ -48,8 +57,20 @@ protected:
 	void MakeHit(FHitResult& HitResult, const FVector& TraceStart, const FVector& TraceEnd) const;
 
 	bool IsHitBehind(const FHitResult& HitResult) const;
+    
+    FVector GetMuzzleLocation() const;
+    FQuat GetMuzzleRotation() const;
 
-	void MakeDamage(const FHitResult& HitResult) ;
+    void DecreaseAmo();
+    bool IsAmoEmpty() const;
+    bool IsClipEmpty() const;
+    void LogAmmo();
+
+    bool BlockShot = false;
+
+private:
+    
+    FAmoData CurrentAmo;
 };
 
 
