@@ -100,7 +100,6 @@ FQuat ASTUBaseWeapon::GetMuzzleRotation() const {
 
 void ASTUBaseWeapon::DecreaseAmo() {
     CurrentAmo.Bullets--;
-    LogAmmo();
 
     if (IsClipEmpty() && !IsAmoEmpty()) {
         OnClipEmpty.Broadcast();

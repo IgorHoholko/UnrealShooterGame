@@ -165,3 +165,19 @@ void USTUWeaponComponent::Reload() {
     ReloadInProgress = true;
     PlayAnimMontage(CurrentReloadAnimMontage);
 }
+
+bool USTUWeaponComponent::GetWeaponUIData(FWeaponUIData& UIData) const {
+    if (CurrentWeapon) {
+        UIData = CurrentWeapon->GetUIData();
+        return true;
+    }
+    return false;
+}
+
+bool USTUWeaponComponent::GetAmoData(FAmoData& AmoData) const {
+    if (CurrentWeapon) {
+        AmoData = CurrentWeapon->GetAmoData();
+        return true;
+    }
+    return false;
+}

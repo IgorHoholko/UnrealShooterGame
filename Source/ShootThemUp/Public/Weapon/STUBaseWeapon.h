@@ -11,22 +11,24 @@ class USkeletalMeshComponent;
 
 
 UCLASS()
-class SHOOTTHEMUP_API ASTUBaseWeapon : public AActor
-{
-	GENERATED_BODY()
+class SHOOTTHEMUP_API ASTUBaseWeapon : public AActor {
+    GENERATED_BODY()
 	
 public:	
-	ASTUBaseWeapon();
+    ASTUBaseWeapon();
 
     FOnClipEmpty OnClipEmpty;
 
-	virtual void StartFire();
-	virtual void StopFire();
+    virtual void StartFire();
+    virtual void StopFire();
 
     void SetBlockShot(bool flag) { BlockShot = flag;};
 
     void ChangeClip();
     bool CanReload() const;
+
+    FWeaponUIData GetUIData() const {return UIData; }
+    FAmoData GetAmoData() const {return CurrentAmo; }
 
 protected:
 	virtual void BeginPlay() override;
@@ -45,6 +47,9 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Weapon")
     FAmoData DefaultAmo{15, 10, false};
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="UI")
+    FWeaponUIData UIData;
 
 	virtual void MakeShot();
 

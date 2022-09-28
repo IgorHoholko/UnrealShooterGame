@@ -36,3 +36,16 @@ struct FWeaponData {
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Weapon")
     UAnimMontage* ReloadAniMontage;
 };
+
+
+USTRUCT(BlueprintType)
+struct FWeaponUIData {
+    GENERATED_BODY()
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Weapon")
+    UTexture2D* MainIcon;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Weapon")
+    UTexture2D* CrossHairIcon;
+    
+};
