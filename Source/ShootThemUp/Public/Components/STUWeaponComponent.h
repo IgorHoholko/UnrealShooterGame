@@ -22,10 +22,13 @@ public:
 	void StartFire();
 	void StopFire();
     void NextWeapon();
+    void Reload(ASTUBaseWeapon* AmmoEmptyWeapon);
     void Reload();
 
     bool GetWeaponUIData(FWeaponUIData& UIData) const;
     bool GetAmoData(FAmoData& AmoData) const;
+
+    bool TryToAddAmmo(TSubclassOf<ASTUBaseWeapon> WeaponClass, int32 ClipsAmount);
 
 protected:
 	virtual void BeginPlay() override;

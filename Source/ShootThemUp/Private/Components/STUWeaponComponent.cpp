@@ -158,6 +158,19 @@ void USTUWeaponComponent::NextWeapon() {
     EquipWeapon(CurrentWeaponIndex);
 }
 
+void USTUWeaponComponent::Reload(ASTUBaseWeapon* AmmoEmptyWeapon) {
+    if (!AmmoEmptyWeapon) return;
+    
+    if (AmmoEmptyWeapon == CurrentWeapon) {
+        Reload();
+    }
+    else {
+        if (!Weapons.Find(AmmoEmptyWeapon)) return;
+        if (!AmmoEmptyWeapon->CanReload()) return;
+        AmmoEmptyWeapon->ChangeClip();
+    }
+}
+
 void USTUWeaponComponent::Reload() {
     if (!CanReload()) return;
     CurrentWeapon->SetBlockShot(true);
@@ -178,6 +191,15 @@ bool USTUWeaponComponent::GetAmoData(FAmoData& AmoData) const {
     if (CurrentWeapon) {
         AmoData = CurrentWeapon->GetAmoData();
         return true;
+    }
+    return false;
+}
+
+bool USTUWeaponComponent::TryToAddAmmo(TSubclassOf<ASTUBaseWeapon> WeaponClass, int32 ClipsAmount) {
+    for (const auto Weapon: Weapons) {
+        if (Weapon && Weapon->IsA(WeaponClass)) {
+            return Weapon->TryToAddAmmo(ClipsAmount);
+        }
     }
     return false;
 }

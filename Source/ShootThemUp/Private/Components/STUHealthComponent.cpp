@@ -18,7 +18,12 @@ USTUHealthComponent::USTUHealthComponent()
 }
 
 
-// Called when the game starts
+bool USTUHealthComponent::TryToAddHealth(float HealthAmount) {
+    if (FMath::IsNearlyEqual(Health, MaxHealth)) return false;
+    SetHealth(Health + HealthAmount);
+    return true;
+}
+
 void USTUHealthComponent::BeginPlay()
 {
 	Super::BeginPlay();

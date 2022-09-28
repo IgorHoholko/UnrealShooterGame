@@ -17,6 +17,33 @@ ASTUBaseWeapon::ASTUBaseWeapon()
 	
 }
 
+bool ASTUBaseWeapon::TryToAddAmmo(int32 ClipsAmount) {
+    if (CurrentAmo.Infinite || IsAmmoFull() || ClipsAmount <= 0) return false;
+
+    if (IsAmoEmpty()) {
+        CurrentAmo.Clips = FMath::Clamp(CurrentAmo.Clips + ClipsAmount, 0, DefaultAmo.Clips + 1);
+        OnClipEmpty.Broadcast(this);
+    }
+    else if( CurrentAmo.Clips < DefaultAmo.Clips) {
+        const auto NextClipsAmount = CurrentAmo.Clips + ClipsAmount;
+        if (DefaultAmo.Clips - NextClipsAmount >= 0) {
+            CurrentAmo.Clips = ClipsAmount;
+        }
+        else {
+            CurrentAmo.Clips = DefaultAmo.Clips;
+            CurrentAmo.Bullets = DefaultAmo.Bullets;
+        }
+    }
+    else {
+        CurrentAmo.Bullets = DefaultAmo.Bullets;
+    }
+    return true;
+}
+
+bool ASTUBaseWeapon::IsAmmoFull() const {
+    return CurrentAmo.Clips == DefaultAmo.Clips && DefaultAmo.Bullets == CurrentAmo.Bullets;
+}
+
 void ASTUBaseWeapon::BeginPlay()
 {
 	Super::BeginPlay();
@@ -102,7 +129,7 @@ void ASTUBaseWeapon::DecreaseAmo() {
     CurrentAmo.Bullets--;
 
     if (IsClipEmpty() && !IsAmoEmpty()) {
-        OnClipEmpty.Broadcast();
+        OnClipEmpty.Broadcast(this);
     }
 }
 

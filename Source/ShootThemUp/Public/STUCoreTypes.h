@@ -4,7 +4,7 @@
 class ASTUBaseWeapon;
 
 // weapon
-DECLARE_MULTICAST_DELEGATE(FOnClipEmpty)
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnClipEmpty, ASTUBaseWeapon*)
 
 // health
 DECLARE_MULTICAST_DELEGATE(FOnDeath)

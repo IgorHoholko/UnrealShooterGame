@@ -30,6 +30,8 @@ public:
     FWeaponUIData GetUIData() const {return UIData; }
     FAmoData GetAmoData() const {return CurrentAmo; }
 
+    bool TryToAddAmmo(int32 ClipsAmount);
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -70,6 +72,7 @@ protected:
     bool IsAmoEmpty() const;
     bool IsClipEmpty() const;
     void LogAmmo();
+    bool IsAmmoFull() const;
 
     bool BlockShot = false;
 
