@@ -8,6 +8,8 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "STUProjectile.generated.h"
 
+class USTUWeaponFXComponent;
+
 UCLASS()
 class SHOOTTHEMUP_API ASTUProjectile : public AActor
 {
@@ -19,6 +21,10 @@ public:
     void SetShotDirection(const FVector& Direction) { ShotDirection = Direction;}
 
 protected:
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="VFX")
+    USTUWeaponFXComponent* WeaponFXComponent;
+    
     UPROPERTY(VisibleDefaultsOnly, Category="Component")
     USphereComponent* CollisionComponent;
 

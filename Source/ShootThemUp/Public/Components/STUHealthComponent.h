@@ -7,6 +7,9 @@
 #include "Components/ActorComponent.h"
 #include "STUHealthComponent.generated.h"
 
+
+class CameraShake;
+class USoundCue;
 struct FTimerHandle;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -48,6 +51,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Heal", meta=(EditCondition="AutoHeal", ClampMin = "0.0", ClampMax="1000.0"))
 	float HealUpdateTime = 0.3f;
 
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="VFX")
+    TSubclassOf<UCameraShakeBase> CameraShake;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Sound")
+    USoundCue* DamageReplySound;
+
 
 private:
 
@@ -61,4 +70,6 @@ private:
 	void HealUpdate();
 
 	void SetHealth(float NewHealth);
+
+    void PlayCameraShake() const;
 };

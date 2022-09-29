@@ -3,15 +3,29 @@
 
 #include "Weapon/STURifleWeapon.h"
 #include "DrawDebugHelpers.h"
+#include "NiagaraComponent.h"
 #include "Engine/World.h"
+#include "STUWeaponFXComponent.h"
+#include "NiagaraFunctionLibrary.h"
 
+ASTURifleWeapon::ASTURifleWeapon() {
+    WeaponFXComponent = CreateDefaultSubobject<USTUWeaponFXComponent>("WeaponFXComponent");
+}
+
+void ASTURifleWeapon::BeginPlay() {
+    Super::BeginPlay();
+
+    check(WeaponFXComponent);
+}
 
 void ASTURifleWeapon::StartFire(){
+    InitMuzzleFX();
 	MakeShot();
 	GetWorldTimerManager().SetTimer(ShotTimerHandle, this, &ASTURifleWeapon::MakeShot, TimeBetweenShots, true);
 }
 void ASTURifleWeapon::StopFire(){
 	GetWorldTimerManager().ClearTimer(ShotTimerHandle);
+    SetMuzzleFXVisibility(false);
 }
 
 void ASTURifleWeapon::MakeShot()
@@ -32,22 +46,17 @@ void ASTURifleWeapon::MakeShot()
 	FHitResult HitResult;
 	MakeHit(HitResult, TraceStart, TraceEnd);
 
-	const FVector SocketLocation = WeaponMesh->GetSocketTransform(MuzzleSocketName).GetLocation();
-	
+    FVector TraceFXEnd = TraceEnd;
 	if (HitResult.bBlockingHit and !IsHitBehind(HitResult))
 	{
-		DrawDebugLine(GetWorld(), SocketLocation, HitResult.ImpactPoint, FColor::Red, false, 3, 0, 3.f);
-		DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 10, 24, FColor::Red, false, 5);
-
+	    TraceFXEnd = HitResult.ImpactPoint;
+        WeaponFXComponent->PlayImpactFX(HitResult);
 		UE_LOG(LogTemp, Error, TEXT("Bome: %s"), *HitResult.BoneName.ToString());
 
 		MakeDamage(HitResult);
 	}
-	else
-	{
-		DrawDebugLine(GetWorld(), SocketLocation, TraceEnd, FColor::Red, false, 3, 0, 3.f);
-	}
 
+    SpawnTraceFX(GetMuzzleLocation(), TraceFXEnd);
     DecreaseAmo();
 	
 }
@@ -73,4 +82,24 @@ void ASTURifleWeapon::MakeDamage(const FHitResult& HitResult)
     if (!DamageActor) return;
 
     DamageActor->TakeDamage(DamageAmount, FDamageEvent{}, GetPlayerController(), this);
+}
+
+void ASTURifleWeapon::InitMuzzleFX() {
+    if (!MuzzleFXComponent) {
+        MuzzleFXComponent = SpawnMuzzleFX();
+    }
+    SetMuzzleFXVisibility(true);
+}
+void ASTURifleWeapon::SetMuzzleFXVisibility(bool Visible) {
+    if (MuzzleFXComponent) {
+        MuzzleFXComponent->SetPaused(!Visible);
+        MuzzleFXComponent->SetVisibility(Visible, true);
+    }
+}
+
+void ASTURifleWeapon::SpawnTraceFX(const FVector& TraceStart, const FVector& TraceEnd) {
+    const auto TraceFXComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), TraceFX,TraceStart);
+    if (TraceFXComponent) {
+        TraceFXComponent->SetNiagaraVariableVec3(TraceFXName, TraceEnd);
+    }
 }

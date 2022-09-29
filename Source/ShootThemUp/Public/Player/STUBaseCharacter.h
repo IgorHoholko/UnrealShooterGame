@@ -11,6 +11,7 @@
 #include "STUBaseCharacter.generated.h"
 
 class USTUHealthComponent;
+class USoundCue;
 
 // DEFINE_LOG_CATEGORY_STATIC(BaseCharacterLog, All, All);
 
@@ -50,6 +51,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category="Movement")
 	FVector2D LandedDamage = FVector2D(10.f, 100.f);
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Sound")
+    USoundCue* DeathSound;
 	
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -79,7 +83,7 @@ private:
 	void OnStopRinning();
 
 	void OnDeath();
-	void OnHealthChanged(float Health);
+	void OnHealthChanged(float Health, float HealthDelta);
 
 	UFUNCTION()
 	void OnGroundLanded(const FHitResult& Hit);
